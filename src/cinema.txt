@@ -1,0 +1,452 @@
+#include <stdio.h>
+#include <string.h>
+#include <conio.h>
+#define totaldefilas 10
+#define totaldeassentos 20
+#define totaldefilmes 4
+#define totaldias 7
+#define totalsessao 3
+//VARIAVEL DE MATRIZ GLOBAL PARA ESCOLHA DE POLTRONAS POR DIA, HORARIO E FILME SELECIONADO
+char matriz[totaldias][totaldefilmes][totalsessao][totaldefilas][totaldeassentos];
+int contaLugaresVagos(int dia,int filme,int horario){
+int totalVagos =0;
+int x,y;
+for(x = 0;x<totaldefilas;x++)
+for(y = 0;y<totaldeassentos;y++)
+{
+if(matriz[dia][filme][horario][x][y]=='*')
+totalVagos++;
+}
+return totalVagos;
+}
+//FUNCAO PARA GERACAO DE RELATORIO A SER LIDO PARA FLUXO DE CAIXA
+void gravaRelatorio(char*linhaImpressao){
+FILE *fp;
+int i;
+fp = fopen("relatorio.txt","a+");
+if(fp == NULL)
+{
+printf( "Erro na abertura do arquivo");
+exit(1);
+}
+fputs(linhaImpressao, fp);
+fflush(fp);
+fclose(fp);
+return 0;
+}
+//FUNCAO PARA LIMPAR RELATÓRIO APÓS FIM DO DIA
+void apagaRelatorio(){
+FILE *fp;
+int i;
+fp = fopen("relatorio.txt","w");
+if(fp == NULL)
+{
+printf( "Erro na abertura do arquivo");
+exit(1);
+}
+fflush(fp);
+fclose(fp);
+return 0;
+}
+//FUNCAO PARA LEITURA DE RELATÓRIO
+void leRelatorio(){
+FILE *fp;
+char linhaImpressao[100];
+int i;
+fp = fopen("relatorio.txt","r+");
+if(fp == NULL)
+{
+printf( "Erro na abertura do arquivo");
+exit(1);
+}
+fseek(fp,0,0);
+while( (fgets(linhaImpressao, sizeof(linhaImpressao), fp))!=NULL )
+{
+printf("%s\n",linhaImpressao);
+}
+fclose(fp);
+return 0;
+}
+ 
+char* diaSemana(int dia){
+switch(dia){
+case 1:
+return"DOMINGO";
+case 2:
+return"SEGUNDA";
+case 3:
+return"TERCA";
+case 4:
+return"QUARTA";
+case 5:
+return"QUINTA";
+case 6:
+return"SEXTA";
+case 7:
+return"SABADO";
+
+}
+}
+void main(){
+//DECLARACAO DE VARIÁVEIS
+double totalValorIngresso = 0;
+int dia;
+int filmes;
+int tipoDeIngressoEspecial;
+int tipoDeIngresso;
+int horarios;
+int looping=1;
+int assento;
+int fila;
+memset(matriz,'*',sizeof (matriz));
+int x,y;
+ 
+for(x=1;x<=10;x++){
+for(y=1;y<=20;y++){
+matriz[dia][filmes][horarios][x][y]= '*';
+}
+}
+apagaRelatorio();
+gravaRelatorio("****FLUXO DE CAIXA****\n");
+//INICIO DO LOOPING PARA RETORNO DO PROGRAMA
+do{
+//INICIO DO PROGRAMA
+printf("\t********CINEMA PARA TODOS*******\n");
+printf("\t***********BEM-VINDO**********\n");
+printf("\t\n----------------------------------------\n");
+printf("\tESCOLHA O DIA EM QUE DESEJA VER O FILME\n");
+//ESCOLHA DO DIA DE EXIBICAO
+do{
+printf("\t(1)-Domingo\n");
+printf("\t(2)-Segunda\n");
+printf("\t(3)-Terca\n");
+printf("\t(4)-Quarta\n");
+printf("\t(5)-Quinta\n");
+printf("\t(6)-Sexta\n");
+printf("\t(7)-Sabado\n");
+scanf("%d",&dia);
+if(dia>7||dia==0){
+printf("Dia invalido! Escolha novamente");
+}
+printf("\t\n----------------------------------------\n");
+}while(dia>7||dia==0);
+//DEFINICAO DO DIA ESPECIFICO DA SESSAO ESPECIAL
+if(dia == 2){
+do{
+printf("\tESCOLHA O FILME:\n");
+printf("\t(1) - Germinal\n");
+printf("\t(2) - Ilha das flores      \n");
+printf("\t(3) - Tempos modernos\n");
+printf("\t(4) - Carandiru     ||***Segunda - Especial***\n");
+scanf("%d",&filmes);
+if(filmes>4||0){
+printf("Opcao invalida.Escolha novamente");
+}
+printf("\t\n----------------------------------------\n");
+}while(filmes>4||0);
+}else{
+//ESCOLHA DO FILME
+do{
+printf("\tESCOLHA O FILME:\n");
+printf("\t(1) - Germinal\n");
+printf("\t(2) - Ilha das flores      \n");
+printf("\t(3) - Tempos modernos\n");
+printf("\t\n----------------------------------------\n");
+scanf("%d",&filmes);
+if(filmes>3||0){
+printf("Opcao invalida!Escolha novamente\n");
+}
+ 
+}while(filmes>3||0);
+}
+ 
+do{
+//ESCOLHA DO HORÁRIO
+printf("\n1\tSELECIONE HORARIO:\n");
+printf("\t\t(1) 13h30\n");
+printf("\t\t(2) 16h30\n");
+printf("\t\t(3) 19h00\n");
+scanf("%d",&horarios);
+if(horarios>3||horarios == 0){
+printf("Horario invalido! Escolha novamente\n");
+}
+printf("\t\n----------------------------------------\n");
+if(contaLugaresVagos(dia,filmes,horarios)==0){
+printf("Sessao esgotada! Escolha novamente\n");
+horarios = 4;
+
+}
+ 
+}while(horarios>3||horarios == 0);
+printf("   ");
+for(y=1;y<=20;y++){
+printf("%02d ",y);
+}
+printf("\n");
+for(x=1;x<=10;x++){
+printf("%02d ",x);
+for(y=1;y<=20;y++){
+printf("%c  ", matriz[dia][filmes][horarios][x][y]);
+}
+printf("\n");
+}
+//ESCOLHA DA POLTRONA
+printf("\n1\tSELECIONE POLTRONA:\n");
+
+do{
+printf("\tEscolha a fila(1-10):\n");
+scanf("%d",&fila);
+if(fila>10||fila<=0){
+printf("Opcao invalida! Escolha novamente\n");
+}
+
+}while( fila>10||fila<=0 );
+
+
+do{
+printf("\tEscolha o assento(1-20):\n");
+scanf("%d",&assento);
+if(assento>20||assento<=0){
+printf("Opcao invalida! Escolha novamente\n");
+}
+if((matriz[dia][filmes][horarios][fila][assento]== '#')){
+printf("Lugar selecionado! Escolha novamente\n");
+}
+}while((assento>20||assento<=0)||(matriz[dia][filmes][horarios][fila][assento]== '#'));
+ 
+matriz[dia][filmes][horarios][fila][assento]= '#';
+ 
+printf("   ");
+for(y=1;y<=20;y++){
+printf("%02d ",y);
+}
+printf("\n");
+for(x=1;x<=10;x++){
+printf("%02d ",x);
+for(y=1;y<=20;y++){
+printf("%c  ", matriz[dia][filmes][horarios][x][y]);
+}
+printf("\n");
+}
+
+//ESCOLHA DO INGRESSO
+printf("\t\n----------------------------------------\n");
+int valorIngresso = 40;
+if(dia == 2&&filmes==4){
+do{
+printf("\t\tSelecione seu ingresso:\n");
+printf("\t\t(1) - Comum\n");
+printf("\t\t(2) - Estudante\n");
+printf("\t\t(3) - Idoso/aposentado\n");
+printf("\t\t(4) - Escola Publica\n");
+scanf("%d",&tipoDeIngressoEspecial);
+if(tipoDeIngressoEspecial>4||tipoDeIngressoEspecial== 0){
+printf("Opcao invalida! Escolha novamente\n");
+}
+}while(tipoDeIngressoEspecial>4||tipoDeIngressoEspecial== 0);
+}else{
+do{
+printf("\t\tSelecione seu ingresso:\n");
+printf("\t\t(1) - Comum\n");
+printf("\t\t(2) - Estudante\n");
+printf("\t\t(3) - Idoso/aposentado\n");
+scanf("%d",&tipoDeIngresso);
+if(tipoDeIngresso>3||tipoDeIngresso == 0){
+printf("Opcao invalida! Escolha novamente\n");
+}
+}while(tipoDeIngresso>3||tipoDeIngresso == 0);
+}
+//FORMATACAO DE IMPRESSAO DO INGRESSO
+printf("\t\n----------------------------------------\n");
+printf("\t=====================================\n");
+printf("\t||********CINEMA PARA TODOS********||\n");
+printf("\t||*************INGRESSO************||\n");
+printf("\t||DATA : %s HORA: %s\n",__DATE__,__TIME__"||");
+printf("\t||APRESENTAR RG/CARTEIRA ESTUDANTE ||\n");
+switch(dia){
+case 1:
+printf("\t||DIA DA SESSAO SELECIONADA:DOMINGO||\n");
+break;
+case 2:
+printf("\t||DIA DA SESSAO SELECIONADA:SEGUNDA||\n");
+break;
+case 3:
+printf("\t||DIA DA SESSAO SELECIONADA:TERCA  ||\n");
+ 
+break;
+case 4:
+printf("\t||DIA DA SESSAO SELECIONADA:QUARTA ||\n");
+break;
+case 5:
+printf("\t||DIA DA SESSAO SELECIONADA:QUINTA ||\n");
+ 
+break;
+case 6:
+printf("\t||DIA DA SESSAO SELECIONADA:SEXTA  ||\n");
+break;
+case 7:
+printf("\t||DIA DA SESSAO SELECIONADA:SABADO ||\n");
+break;
+default:
+printf("\t||DATA:INVALIDA                    ||\n");
+break;
+}
+if(dia == 2){
+switch (filmes){
+case 1:
+printf("\t||Germinal                         ||\n");
+gravaRelatorio("||Germinal                          ||\t\t");
+break;
+case 2:
+printf("\t||Ilha das flores                 ||\n");
+gravaRelatorio("||Ilha das flores                 ||\t\t");
+break;
+case 3:
+printf("\t||Tempos modernos                  ||\n");
+gravaRelatorio("||Tempos modernos                  ||\t\t");
+break;
+case 4:
+printf("\t||Carandiru                        ||\n");
+printf("\t||***Sessao Especial de Segunda*** ||\n");
+gravaRelatorio("||Carandiru                        ||\t\t");
+break;
+default:
+printf("\tFilme invalido. Selecione novamente");
+break;
+}
+
+}else{
+
+switch (filmes){
+case 1:
+printf("\t||Filme:Germinal                   ||\n");
+gravaRelatorio("||Germinal                          ||\t\t");
+break;
+case 2:
+printf("\t||Filme:Ilha das flores            ||\n");
+gravaRelatorio("||Ilha das flores                  ||\t\t");
+break;
+case 3:
+printf("\t||Filme:Tempos Modernos           ||\n");
+gravaRelatorio("||Tempos modernos                  ||\t\t");
+break;
+default:
+printf("\tFilme invalido. Selecione novamente");
+break;
+}
+}
+switch(horarios){
+case 1:
+printf("\t||HORARIO: 13h30                   ||\n");
+break;
+case 2:
+printf("\t||HORARIO: 16h30                   ||\n");
+break;
+case 3:
+printf("\t||HORARIO: 19h00                   ||\n");
+break;
+default:
+printf("\t\tHorario invalido.Selecione novamente\n");
+break;
+}
+printf("\t||FILA:     %d",fila);
+printf("||\n\t||POLTRONA: %d||\n",assento);
+printf("\t||INGRESSO:R$%d           ||\n",valorIngresso);
+if(dia==2){
+//CATEGORIZAÇÃO DO TIPO DE INGRESSO
+switch(tipoDeIngressoEspecial){
+case 1:
+printf("\t||TOTAL A PAGAR:R$%d           ||\n",valorIngresso);
+printf("\t||TIPO: COMUM                      ||\n");
+totalValorIngresso+=valorIngresso;
+{
+char formataTotal[100] ;
+sprintf(formataTotal,"Dia:%s Valor de ingresso COMUM: %02d\n",diaSemana(dia),valorIngresso);
+gravaRelatorio(formataTotal);
+}
+break;
+case 2:
+printf("\t||TOTAL A PAGAR:R$%d           ||\n",valorIngresso/2);
+printf("\t||TIPO: ESTUDANTE                  ||\n");
+totalValorIngresso+=valorIngresso/2;
+{
+char formataTotal[100] ;
+sprintf(formataTotal,"Dia:%s Valor de ingresso ESTUDANTE: %02d\n",diaSemana(dia),valorIngresso/2);
+gravaRelatorio(formataTotal);
+}
+break;
+case 3:
+printf("\t||TOTAL A PAGAR:R$%d           ||\n",valorIngresso-valorIngresso);
+printf("\t||TIPO: IDOSO/APOSENTADO           ||\n");
+totalValorIngresso+=valorIngresso-valorIngresso;
+{
+char formataTotal[100] ;
+sprintf(formataTotal,"Dia:%s Valor de ingresso IDOSO/APOSENTADO: %02d\n",diaSemana(dia),valorIngresso-valorIngresso);
+gravaRelatorio(formataTotal);
+}
+break;
+case 4:
+printf("\t||TOTAL A PAGAR:R$%d           ||\n",valorIngresso-valorIngresso);
+printf("\t||GRATUIDADE ESCOLA PUBLICA        ||\n");
+totalValorIngresso+=valorIngresso-valorIngresso;
+{
+char formataTotal[100] ;
+sprintf(formataTotal,"Dia:%s Valor de ingresso ESCOLA PUBLICA: %02d\n",diaSemana(dia),valorIngresso-valorIngresso);
+gravaRelatorio(formataTotal);
+}
+break;
+}
+
+}else{
+switch(tipoDeIngresso){
+case 1:
+printf("\t||TOTAL A PAGAR:R$%d           ||\n",valorIngresso);
+printf("\t||TIPO: COMUM                      ||\n");
+totalValorIngresso+=valorIngresso;
+{
+char formataTotal[100] ;
+sprintf(formataTotal,"Dia:%s Valor de ingresso COMUM: %02d\n",diaSemana(dia),valorIngresso);
+gravaRelatorio(formataTotal);
+}
+break;
+case 2:
+printf("\t||TOTAL A PAGAR:R$%d           ||\n",valorIngresso/2);
+printf("\t||TIPO: ESTUDANTE                  ||\n");
+totalValorIngresso+=valorIngresso/2;
+{
+char formataTotal[100] ;
+sprintf(formataTotal,"Dia:%s Valor de ingresso ESTUDANTE: %02d\n",diaSemana(dia),valorIngresso/2);
+gravaRelatorio(formataTotal);
+}
+break;
+case 3:
+printf("\t||TOTAL A PAGAR:R$%d           ||\n",valorIngresso-valorIngresso);
+printf("\t||TIPO: IDOSO/APOSENTADO           ||\n");
+totalValorIngresso+=valorIngresso-valorIngresso;
+{
+char formataTotal[100] ;
+sprintf(formataTotal,"Dia:%s Valor de ingresso IDOSO/APOSENTADO: %02d\n",diaSemana(dia),valorIngresso-valorIngresso);
+gravaRelatorio(formataTotal);
+}
+break;
+}
+ 
+}
+printf("\t=====================================\n");
+printf("\n\t----------BOM FILME!---------\n");
+{
+  char tecla = getch();
+if (tecla =='F'){
+leRelatorio();
+printf("Total de ingressos:R$ %02.2f\n",totalValorIngresso);
+}
+}
+printf("\n");
+printf("\n");
+system("pause");
+system("cls");
+
+}while(looping == 1);
+}
+
+Juliana
